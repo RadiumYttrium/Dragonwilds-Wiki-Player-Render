@@ -4,36 +4,146 @@
     <meta charset="UTF-8">
     <title>RSDW Wiki Render Tool</title>
     <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #1a1a1a; color: #fff; display: flex; height: 100vh; }
-    .sidebar { width: 300px; background: #2a2a2a; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.5); z-index: 10; }
-    #canvas-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZxg1gILBgM/IgI+O0UwMBjM+w8OoiTQNIKM7hO1hAAD/3gQ/81qJwwAAAABJRU5ErkJggg=='); }
-    button { padding: 10px; background: #444; color: white; border: none; cursor: pointer; border-radius: 4px; }
-    button:hover { background: #555; }
-    button.primary { background: #007bff; font-weight: bold; margin-top: 20px; }
-    button.primary:hover { background: #0056b3; }
-    .btn-group { display: flex; flex-direction: column; gap: 8px; }
-</style>
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background: #18181b; 
+            color: #f4f4f5; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden;
+        }
+        .sidebar { 
+            width: 320px; 
+            background: #27272a; 
+            padding: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            border-right: 1px solid #3f3f46;
+            z-index: 10;
+        }
+        h2 { margin: 0; font-size: 1.25rem; }
+        h3 { margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a1a1aa; }
+        
+        .drop-zone {
+            border: 2px dashed #52525b;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #1f1f22;
+            transition: border-color 0.2s, background 0.2s;
+            font-size: 0.9rem;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #3b82f6;
+            background: #27272f;
+        }
+        #file-input { display: none; }
+        
+        .file-list {
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            max-height: 80px;
+            overflow-y: auto;
+            background: #18181b;
+            padding: 8px;
+            border-radius: 4px;
+        }
 
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        button { 
+            padding: 10px 12px; 
+            background: #3f3f46; 
+            color: #f4f4f5; 
+            border: 1px solid #52525b; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        button:hover { background: #52525b; }
+        button.active { background: #2563eb; border-color: #3b82f6; }
+        
+        .pose-control { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        button.primary { 
+            background: #16a34a; 
+            border-color: #22c55e; 
+            font-weight: 600; 
+            padding: 12px;
+            margin-top: auto; 
+            font-size: 0.95rem;
+        }
+        button.primary:hover { background: #15803d; }
+
+        #viewport { 
+            flex-grow: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: #121214;
+        }
+        /* Strictly locked 600x600 container with transparency checkerboard */
+        #canvas-container { 
+            width: 600px; 
+            height: 600px; 
+            border: 2px solid #3f3f46;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background-image: 
+                linear-gradient(45deg, #222 25%, transparent 25%), 
+                linear-gradient(-45deg, #222 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #222 75%), 
+                linear-gradient(-45deg, transparent 75%, #222 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+    </style>
+</head>
 <body>
     <div class="sidebar">
-        <h2>RSDW Render Tool</h2>
-        <label>Upload Base & Equipment (.glb)</label>
-        <input type="file" id="file-input" accept=".glb" multiple />
+        <h2>RSDW Wiki Renderer</h2>
         
-        <hr style="width: 100%; border-color: #444;">
-        
-        <h3>Camera Angles</h3>
-        <div class="btn-group">
-            <button id="btn-iso">Standard Isometric</button>
-            <button id="btn-front">Front Profile</button>
-            <button id="btn-back">Back Profile (Capes)</button>
-            <button id="btn-weapon">Right Side (Weapons)</button>
+        <div class="drop-zone" id="drop-zone">
+            Click or Drag & Drop <b>.glb</b> files here
+            <input type="file" id="file-input" accept=".glb" multiple />
         </div>
-        
-        <button id="download-btn" class="primary">Download PNG</button>
+        <div class="file-list" id="file-list">No files loaded.</div>
+
+        <h3>1. Select Standard Angle</h3>
+        <div class="btn-group">
+            <button class="angle-btn active" data-angle="front-iso">Front Isometric</button>
+            <button class="angle-btn" data-angle="back-iso">Back Isometric</button>
+            <button class="angle-btn" data-angle="front">Front Flat</button>
+            <button class="angle-btn" data-angle="back">Back (Capes)</button>
+            <button class="angle-btn" data-angle="right">Right (Weapons)</button>
+            <button class="angle-btn" data-angle="left">Left (Shields)</button>
+        </div>
+
+        <h3>2. Pose Frame (If Animated)</h3>
+        <div class="pose-control">
+            <input type="range" id="pose-slider" min="0" max="1" step="0.01" value="0" disabled />
+            <span id="pose-label">Static Model / Frame: 0.00s</span>
+        </div>
+
+        <button id="download-btn" class="primary">Download Standard PNG</button>
     </div>
     
-    <div id="canvas-container"></div>
+    <div id="viewport">
+        <div id="canvas-container"></div>
+    </div>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
