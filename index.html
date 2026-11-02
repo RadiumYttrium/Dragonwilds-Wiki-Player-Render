@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RSDW Wiki Render Tool</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #222; color: #fff; }
+        #canvas-container { margin: 20px auto; width: 500px; height: 500px; background: transparent; }
+    </style>
+</head>
+<body>
+    <h2>RSDW Model Renderer</h2>
+    <input type="file" id="file-input" accept=".glb" />
+    <button id="download-btn">Download PNG</button>
+    <div id="canvas-container"></div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
