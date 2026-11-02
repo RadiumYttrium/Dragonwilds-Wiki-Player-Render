@@ -28,3 +28,25 @@ scene.add(ambientLight);
 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
 dirLight.position.set(5, 10, 7.5);
 scene.add(dirLight);
+
+function setCameraAngle(x, y, z) {
+    camera.position.set(x, y, z);
+    camera.lookAt(0, 1, 0); 
+    renderer.render(scene, camera);
+}
+
+document.getElementById('btn-iso').addEventListener('click', () => {
+    setCameraAngle(5, 5, 5); // Classic 3/4 top-down
+});
+
+document.getElementById('btn-front').addEventListener('click', () => {
+    setCameraAngle(0, 1, 5); // Dead-on front
+});
+
+document.getElementById('btn-back').addEventListener('click', () => {
+    setCameraAngle(0, 1, -5); // Dead-on back, perfect for capes
+});
+
+document.getElementById('btn-weapon').addEventListener('click', () => {
+    setCameraAngle(5, 1, 0); // Right profile, good for holding weapons
+});
