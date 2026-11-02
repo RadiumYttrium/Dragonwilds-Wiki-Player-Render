@@ -4,24 +4,36 @@
     <meta charset="UTF-8">
     <title>RSDW Wiki Render Tool</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #222; color: #fff; }
-        #canvas-container { margin: 20px auto; width: 500px; height: 500px; background: transparent; }
-    </style>
-</head>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #1a1a1a; color: #fff; display: flex; height: 100vh; }
+    .sidebar { width: 300px; background: #2a2a2a; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.5); z-index: 10; }
+    #canvas-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZxg1gILBgM/IgI+O0UwMBjM+w8OoiTQNIKM7hO1hAAD/3gQ/81qJwwAAAABJRU5ErkJggg=='); }
+    button { padding: 10px; background: #444; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #555; }
+    button.primary { background: #007bff; font-weight: bold; margin-top: 20px; }
+    button.primary:hover { background: #0056b3; }
+    .btn-group { display: flex; flex-direction: column; gap: 8px; }
+</style>
+
 <body>
-    <h2>RSDW Model Renderer</h2>
-    <input type="file" id="file-input" accept=".glb" />
-    <button id="download-btn">Download PNG</button>
+    <div class="sidebar">
+        <h2>RSDW Render Tool</h2>
+        <label>Upload Base & Equipment (.glb)</label>
+        <input type="file" id="file-input" accept=".glb" multiple />
+        
+        <hr style="width: 100%; border-color: #444;">
+        
+        <h3>Camera Angles</h3>
+        <div class="btn-group">
+            <button id="btn-iso">Standard Isometric</button>
+            <button id="btn-front">Front Profile</button>
+            <button id="btn-back">Back Profile (Capes)</button>
+            <button id="btn-weapon">Right Side (Weapons)</button>
+        </div>
+        
+        <button id="download-btn" class="primary">Download PNG</button>
+    </div>
+    
     <div id="canvas-container"></div>
 
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
-    <script type="module" src="app.js"></script>
 </body>
 </html>
